@@ -41,6 +41,5 @@ preview.html         self-contained build for testing locally — open directly,
 
 ## Credits
 
-
 - WOFF2 WASM: [google/woff2](https://github.com/google/woff2) via bunny-woff2 (MIT)
 - Made with ♥ by Alex Ghit — alex@hey5.studio
