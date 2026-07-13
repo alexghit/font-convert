@@ -1,10 +1,12 @@
 # Font Convert
 
-Fast, local font converter — **TTF · OTF · WOFF · WOFF2**. Everything runs in the browser; fonts are never uploaded anywhere.
+My local font converter — **TTF · OTF · WOFF · WOFF2**. Everything runs in the browser; fonts never leave your machine.
 
-Select or drop one or many fonts, pick an output format, Convert, then Download. A single font downloads directly; multiple fonts download as a `.zip`. Click the title to clear and start over.
+Live at [fonts.hey5.studio](https://fonts.hey5.studio).
 
-No build step, no dependencies to install.
+Drop in one or many fonts, pick an output format, Convert, then Download. A single font downloads directly; a batch downloads as a `.zip`. Click the title to clear and start over.
+
+Vanilla HTML/CSS/JS, no framework or build step, deployed on Cloudflare Pages — same setup as [Name a Color](https://colors.hey5.studio) and the fluid-size generator.
 
 ## Conversions
 
@@ -15,7 +17,7 @@ Each input is decoded to raw SFNT (TTF/OTF), then re-encoded to the chosen outpu
 | TrueType (glyf) | TTF · WOFF · WOFF2 |
 | PostScript (CFF) | OTF · WOFF · WOFF2 |
 
-TTF↔OTF is not offered because it would require rebuilding the glyph outlines (glyf ↔ CFF), which changes the font. In a batch, any font that can't reach the chosen format is skipped and marked in the list; the rest still convert.
+TTF↔OTF isn't offered since it'd mean rebuilding the glyph outlines (glyf ↔ CFF), which changes the font. In a batch, anything that can't reach the chosen format is skipped and marked in the list; the rest still convert.
 
 ## How it works
 
@@ -27,28 +29,17 @@ TTF↔OTF is not offered because it would require rebuilding the glyph outlines 
 ## Files
 
 ```
-index.html          the app — deploy this
+index.html          the app — this is what's deployed
 _headers             Cloudflare Pages header rules (JS MIME type for /lib)
-site.webmanifest     PWA/homescreen icon manifest
+site.webmanifest     homescreen icon manifest
 icons/               favicon, apple-touch-icon, PWA icons
 lib/                 vendored WOFF2 WASM (compress/decompress)
-preview.html         self-contained build for local testing — open directly, no server needed
+preview.html         self-contained build for testing locally — open directly, no server needed
 ```
 
-`preview.html` has the WOFF2 libraries and icons inlined so it works by double-clicking, with no `http://` server. It's for trying the app locally — deploy `index.html` (plus `_headers`, `site.webmanifest`, `icons/`, `lib/`), not `preview.html`.
-
-## Deploy (Cloudflare Pages)
-
-1. Push this folder to a GitHub repo.
-2. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → connect the repo.
-3. Framework preset: **None**. Build command: *(empty)*. Output directory: `/` (root).
-4. Deploy.
-
-Fully static, so any static host works. The `_headers` file ensures `/lib/*.js` is served with a JS MIME type on Cloudflare Pages.
-
-> Opening `index.html` directly via `file://` won't load the modules — serve over http(s) (Cloudflare Pages, or any local static server). Use `preview.html` for a no-server local check instead.
+`preview.html` has the WOFF2 libraries and icons inlined so it opens straight from disk. It's just for checking changes locally before pushing — the live site runs `index.html`.
 
 ## Credits
 
 - WOFF2 WASM: [google/woff2](https://github.com/google/woff2) via bunny-woff2 (MIT)
-- Made by Alex Ghit
+- Made with ♥ by Alex Ghit
