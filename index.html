@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Font Convert</title>
 <meta name="description" content="Convert fonts between TTF, OTF, WOFF and WOFF2 — fast, local, in your browser.">
-<link rel="icon" href="/icons/favicon.ico" sizes="any">
-<link rel="icon" href="/icons/favicon-32x32.png" type="image/png" sizes="32x32">
-<link rel="icon" href="/icons/favicon-16x16.png" type="image/png" sizes="16x16">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <style>
   :root{
@@ -148,8 +148,8 @@
   </footer>
 
 <script type="module">
-import { initCompress }   from "./lib/woff2-compress.js";
-import { initDecompress } from "./lib/woff2-decompress.js";
+import { initCompress }   from "./woff2-compress.js";
+import { initDecompress } from "./woff2-decompress.js";
 let _c=null,_d=null;
 async function woff2Compress(b){ _c ??= await initCompress();   return _c(b); }
 async function woff2Decompress(b){ _d ??= await initDecompress(); return _d(b); }

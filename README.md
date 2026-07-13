@@ -21,20 +21,23 @@ TTF↔OTF isn't offered since it'd mean rebuilding the glyph outlines (glyf ↔ 
 
 ## How it works
 
-- **WOFF2** encode/decode — Google's `woff2` compiled to WebAssembly (vendored in `/lib`, self-contained, no CDN).
+- **WOFF2** encode/decode — Google's `woff2` compiled to WebAssembly (vendored as `woff2-compress.js` / `woff2-decompress.js`, self-contained, no CDN).
 - **WOFF** encode/decode — native browser `CompressionStream`/`DecompressionStream('deflate')`.
 - **TTF/OTF** — passed through as raw SFNT.
 - **ZIP** for batch downloads — tiny built-in store-method writer, no dependency.
 
 ## Files
 
+Everything sits flat at the repo root (no subfolders) so it uploads cleanly through GitHub's web UI:
+
 ```
-index.html          the app — this is what's deployed
-_headers             Cloudflare Pages header rules (JS MIME type for /lib)
-site.webmanifest     homescreen icon manifest
-icons/               favicon, apple-touch-icon, PWA icons
-lib/                 vendored WOFF2 WASM (compress/decompress)
-preview.html         self-contained build for testing locally — open directly, no server needed
+index.html                  the app — this is what's deployed
+_headers                     Cloudflare Pages header rules (JS MIME type)
+site.webmanifest             homescreen icon manifest
+favicon.ico, favicon-16x16.png, favicon-32x32.png, favicon-48x48.png
+apple-touch-icon.png, icon-192.png, icon-512.png
+woff2-compress.js, woff2-decompress.js, LICENSE-bunny-woff2.txt
+preview.html                 self-contained build for testing locally — open directly, no server needed
 ```
 
 `preview.html` has the WOFF2 libraries and icons inlined so it opens straight from disk. It's just for checking changes locally before pushing — the live site runs `index.html`.
