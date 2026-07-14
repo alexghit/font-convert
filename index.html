@@ -10,27 +10,14 @@
 <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
 <style>
-  :root{
-    --bg:#0a0a0a;--fg:#e8e8e8;--dim:#6a6a6a;--dimmer:#3a3a3a;
-    --line:#242424;--field:#141414;--field-line:#2a2a2a;
-    --accent:#f2f2f2;--accent-fg:#0a0a0a;--pill:#1c1c1c;--err:#e0a0a0;--ok:#9ad0a0;
-    --radius:14px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{
-    background:var(--bg);color:var(--fg);
-    font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-    -webkit-font-smoothing:antialiased;
-    display:flex;flex-direction:column;min-height:100vh;
-  }
   a{color:inherit}
-  header{display:flex;justify-content:space-between;align-items:center;padding:28px 40px}
-  .brand{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);
-    background:none;border:0;font-family:inherit;cursor:pointer;padding:0;transition:color .18s}
-  .brand:hover{color:var(--fg)}
-  .mode{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+  body{display:flex;flex-direction:column}
+
   main{
     flex:1;width:100%;max-width:640px;margin:0 auto;
     padding:40px 32px;display:flex;flex-direction:column;align-items:center;
@@ -39,81 +26,66 @@
 
   /* drop / select */
   .drop{
-    width:100%;border:1px dashed var(--field-line);border-radius:var(--radius);
-    background:var(--field);padding:44px 24px;text-align:center;cursor:pointer;
+    width:100%;border:1px dashed var(--line-strong);border-radius:var(--radius);
+    background:var(--field-bg);padding:44px 24px;text-align:center;cursor:pointer;
     transition:border-color .2s,background .2s;
     display:flex;flex-direction:column;align-items:center;gap:14px;
   }
-  .drop:hover,.drop.over{border-color:#4a4a4a;background:#171717}
-  .drop .big{font-size:15px;color:var(--fg);letter-spacing:.02em}
-  .drop .small{font-size:12px;color:var(--dim)}
+  .drop:hover,.drop.over{border-color:rgba(255,255,255,.3);background:var(--surface-2)}
+  .drop .big{font-family:var(--sans);font-size:15px;color:var(--ink);letter-spacing:.02em}
+  .drop .small{font-family:var(--mono);font-size:12px;color:var(--muted)}
   input[type=file]{display:none}
 
   /* file list */
   .files{width:100%;margin-top:18px;display:flex;flex-direction:column;gap:8px}
   .file{
     display:flex;align-items:center;gap:12px;
-    background:var(--field);border:1px solid var(--field-line);
-    border-radius:10px;padding:12px 14px;font-size:13px;
+    background:var(--field-bg);border:1px solid var(--line-strong);
+    border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:13px;
   }
-  .file .nm{flex:1;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .file .tag{color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .file .nm{flex:1;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file .tag{color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
   .file .st{font-size:11px;letter-spacing:.04em}
-  .file .st.ok{color:var(--ok)}
-  .file .st.err{color:var(--err)}
-  .file .st.wait{color:var(--dim)}
+  .file .st.ok{color:#9ad0a0}
+  .file .st.err{color:#e0a0a0}
+  .file .st.wait{color:var(--muted)}
   .file .x{
-    cursor:pointer;color:var(--dim);border:0;background:0;font:inherit;font-size:15px;
+    cursor:pointer;color:var(--muted);border:0;background:0;font:inherit;font-size:15px;
     padding:0 2px;line-height:1;
   }
-  .file .x:hover{color:var(--fg)}
+  .file .x:hover{color:var(--ink)}
 
-  /* format */
-  .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin:40px 0 16px;text-align:center}
-  .pills{display:inline-flex;background:var(--pill);border-radius:999px;padding:5px;gap:2px}
-  .pill{
-    border:0;background:transparent;color:var(--dim);cursor:pointer;font:inherit;
-    font-size:13px;letter-spacing:.02em;padding:9px 20px;border-radius:999px;
-    transition:background .18s,color .18s;
+  /* format label */
+  .label{
+    font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--muted);margin:40px 0 16px;text-align:center;
   }
-  .pill:hover{color:var(--fg)}
-  .pill[aria-pressed=true]{background:var(--accent);color:var(--accent-fg)}
-  .pill:disabled{opacity:.32;cursor:not-allowed}
+
+  /* format pills sit inside the shared .segs toggle */
+  .segs .pill:disabled{opacity:.32;cursor:not-allowed}
+  .segs .pill{padding:9px 20px;font-size:13px}
 
   /* actions */
   .actions{display:flex;gap:12px;margin-top:40px}
-  .btn{
-    border:1px solid var(--field-line);background:transparent;color:var(--fg);font:inherit;
-    font-size:14px;letter-spacing:.02em;padding:14px 26px;border-radius:12px;cursor:pointer;
-    transition:background .18s,border-color .18s,opacity .18s;
+
+  .status{
+    margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.03em;
+    color:var(--muted);text-align:center;min-height:1.2em;
   }
-  .btn:hover{background:#161616}
-  .btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-  .btn.primary:hover{background:#fff}
-  .btn:disabled{opacity:.3;cursor:not-allowed}
-  .btn.primary:disabled:hover{background:var(--accent)}
-
-  .status{margin-top:14px;font-size:12px;letter-spacing:.03em;color:var(--dim);text-align:center;min-height:1.2em}
-  .status.err{color:var(--err)}
-  .hint{margin-top:12px;font-size:12px;color:var(--dimmer);letter-spacing:.03em;text-align:center}
-  .hint kbd{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:5px;padding:2px 6px;font:inherit;font-size:11px;color:var(--dim)}
-
-  footer{padding:26px;text-align:center;font-size:12px;color:var(--dimmer);letter-spacing:.03em}
-  footer a{color:var(--dim);text-decoration:underline;text-underline-offset:3px}
+  .status.err{color:#e0a0a0}
+  .hint{margin-top:12px;text-align:center}
 
   @media (max-width:560px){
-    header{padding:22px 20px}
     main{padding:40px 20px}
     .actions{flex-direction:column;width:100%}
-    .btn{width:100%}
+    .actions .btn-ghost,.actions .btn-primary{width:100%;text-align:center}
   }
-  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-  <header>
-    <button class="brand" id="brandReset" type="button">Font Convert</button>
-    <span class="mode">Local convert</span>
+  <header class="topbar">
+    <button class="wordmark" id="brandReset" type="button">Font Convert</button>
+    <span class="topbar-tag">Local convert</span>
   </header>
 
   <main>
@@ -127,7 +99,7 @@
     <div class="files" id="files"></div>
 
     <div class="label">Convert to</div>
-    <div class="pills" id="targets" role="group" aria-label="Output format">
+    <div class="segs" id="targets" role="group" aria-label="Output format">
       <button class="pill" data-t="ttf"   aria-pressed="false">TTF</button>
       <button class="pill" data-t="otf"   aria-pressed="false">OTF</button>
       <button class="pill" data-t="woff"  aria-pressed="false">WOFF</button>
@@ -135,15 +107,15 @@
     </div>
 
     <div class="actions">
-      <button class="btn" id="convert" disabled>Convert</button>
-      <button class="btn primary" id="download" disabled>Download</button>
+      <button class="btn-ghost" id="convert" disabled>Convert</button>
+      <button class="btn-primary" id="download" disabled>Download</button>
     </div>
 
     <div class="status" id="status"></div>
     <div class="hint"><kbd>Esc</kbd> clear</div>
   </main>
 
-  <footer>
+  <footer class="footer">
     Made with ♥ by Alex Ghit · <a href="mailto:alex@hey5.studio">alex@hey5.studio</a> · <a href="https://github.com/google/woff2">woff2</a> by Google (MIT) · v1.0
   </footer>
 
