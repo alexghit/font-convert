@@ -1,12 +1,14 @@
 # Font Convert
 
-My local font converter — **TTF · OTF · WOFF · WOFF2**. Everything runs in the browser; fonts never leave your machine.
+Convert fonts between **TTF · OTF · WOFF · WOFF2**, entirely in the browser.
 
 Live at [fonts.hey5.studio](https://fonts.hey5.studio).
 
-Drop in one or many fonts, pick an output format, Convert, then Download. A single font downloads directly; a batch downloads as a `.zip`. Click the title to clear and start over.
+## What it does
 
-Vanilla HTML/CSS/JS, no framework or build step, deployed on Cloudflare Pages — same setup as [Name a Color](https://colors.hey5.studio) and the fluid-size generator.
+Drop in one font or many, pick an output format, hit Convert, then Download. A single font downloads directly; a batch comes back as a `.zip`. Click the title to clear and start over.
+
+Nothing is uploaded. The conversion runs on your own machine via WebAssembly, so the fonts never leave it — which matters when you're working with licensed or unreleased typefaces you can't put through a random web service.
 
 ## Conversions
 
@@ -17,32 +19,28 @@ Each input is decoded to raw SFNT (TTF/OTF), then re-encoded to the chosen outpu
 | TrueType (glyf) | TTF · WOFF · WOFF2 |
 | PostScript (CFF) | OTF · WOFF · WOFF2 |
 
-TTF↔OTF isn't offered since it'd mean rebuilding the glyph outlines (glyf ↔ CFF), which changes the font. In a batch, anything that can't reach the chosen format is skipped and marked in the list; the rest still convert.
+TTF↔OTF isn't offered — it would mean rebuilding the glyph outlines (glyf ↔ CFF), which changes the font rather than repackaging it. In a batch, anything that can't reach the chosen format is skipped and marked in the list; the rest still convert.
 
 ## How it works
 
-- **WOFF2** encode/decode — Google's `woff2` compiled to WebAssembly (vendored as `woff2-compress.js` / `woff2-decompress.js`, self-contained, no CDN).
-- **WOFF** encode/decode — native browser `CompressionStream`/`DecompressionStream('deflate')`.
-- **TTF/OTF** — passed through as raw SFNT.
-- **ZIP** for batch downloads — tiny built-in store-method writer, no dependency.
+- **WOFF2** encode/decode — Google's `woff2` compiled to WebAssembly, vendored in `lib/` so there's no CDN dependency
+- **WOFF** encode/decode — the browser's native `CompressionStream`/`DecompressionStream('deflate')`
+- **TTF/OTF** — passed through as raw SFNT
+- **ZIP** for batch downloads — a small built-in store-method writer, no dependency
 
-## Files
+## How it's built
 
-Everything sits flat at the repo root (no subfolders) so it uploads cleanly through GitHub's web UI:
+Vanilla HTML/CSS/JS, no framework or build step. The app is a single `index.html` with its logic inline; `base.css` holds the styles.
 
 ```
-index.html                  the app — this is what's deployed
-_headers                     Cloudflare Pages header rules (JS MIME type)
-site.webmanifest             homescreen icon manifest
-favicon.ico, favicon-16x16.png, favicon-32x32.png, favicon-48x48.png
-apple-touch-icon.png, icon-192.png, icon-512.png
-woff2-compress.js, woff2-decompress.js, LICENSE-bunny-woff2.txt
-preview.html                 self-contained build for testing locally — open directly, no server needed
+site/      the deployed app — index.html, base.css, icons, manifest,
+           and Cloudflare's _headers
+site/lib/  vendored WOFF2 WebAssembly + its license
 ```
 
-`preview.html` has the WOFF2 libraries and icons inlined so it opens straight from disk. It's just for checking changes locally before pushing — the live site runs `index.html`.
+`wrangler.jsonc` points Cloudflare's asset root at `site/`.
 
 ## Credits
 
-- WOFF2 WASM: [google/woff2](https://github.com/google/woff2) via bunny-woff2 (MIT)
+- WOFF2 WASM: [google/woff2](https://github.com/google/woff2) via bunny-woff2 (MIT) — see `site/lib/LICENSE-bunny-woff2.txt`
 - Made with ♥ by Alex Ghit — alex@hey5.studio
