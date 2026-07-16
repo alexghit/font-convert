@@ -49,11 +49,11 @@
   .file .st.ok{color:#9ad0a0}
   .file .st.err{color:#e0a0a0}
   .file .st.wait{color:var(--muted)}
-  .file .x{
+  .file .x,.file .dl{
     cursor:pointer;color:var(--muted);border:0;background:0;font:inherit;font-size:15px;
     padding:0 2px;line-height:1;
   }
-  .file .x:hover{color:var(--ink)}
+  .file .x:hover,.file .dl:hover{color:var(--ink)}
 
   /* format label */
   .label{
@@ -107,8 +107,8 @@
     </div>
 
     <div class="actions">
-      <button class="btn-ghost" id="convert" disabled>Convert</button>
-      <button class="btn-primary" id="download" disabled>Download</button>
+      <button class="btn-primary" id="convert" disabled>Convert</button>
+      <button class="btn-ghost" id="download" hidden>Download</button>
     </div>
 
     <div class="status" id="status"></div>
@@ -133,7 +133,6 @@ const fileInput=$("file"),drop=$("drop"),dropBig=$("dropBig"),filesEl=$("files")
 
 let target="woff2";
 let items=[];   // {file, name, base, inFmt, sfnt, flavor, out, outFmt, state, msg}
-let converted=false;
 
 /* ---- byte helpers ---- */
 const u32=(v,o)=>((v[o]<<24)|(v[o+1]<<16)|(v[o+2]<<8)|v[o+3])>>>0;
@@ -185,7 +184,7 @@ async function fromSfnt(v,tgt){
 
 /* ---- UI ---- */
 function selectTarget(t){
-  target=t;converted=false;
+  target=t;
   document.querySelectorAll(".pill").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t?"true":"false"));
   items.forEach(it=>{it.out=null;it.state=it.sfnt?"ready":it.state;it.msg="";});
   refreshTargets();render();updateButtons();showStatus("");
@@ -212,23 +211,37 @@ function render(){
     else if(it.state==="done"){st="→ "+it.outFmt.toUpperCase();cls="ok";}
     else if(it.state==="skip"){st=it.msg;cls="err";}
     else{st="ready";cls="wait";}
+    const dl=(it.state==="done"&&it.out)
+      ? `<button class="dl" title="download ${it.base}.${it.outFmt}" data-i="${i}">↓</button>` : "";
     row.innerHTML=`<span class="tag">${it.inFmt?it.inFmt:"?"}</span>
       <span class="nm">${it.name}</span>
       <span class="st ${cls}">${st}</span>
+      ${dl}
       <button class="x" title="remove" data-i="${i}">✕</button>`;
     filesEl.appendChild(row);
   });
   filesEl.querySelectorAll(".x").forEach(b=>b.addEventListener("click",e=>{
     e.preventDefault();remove(+b.dataset.i);
   }));
+  filesEl.querySelectorAll(".dl").forEach(b=>b.addEventListener("click",e=>{
+    e.preventDefault();downloadOne(+b.dataset.i);
+  }));
   dropBig.textContent=items.length?`${items.length} font${items.length>1?"s":""} selected`:"Select or drop fonts";
 }
 function updateButtons(){
-  const anyReady=items.some(i=>i.sfnt&&i.state!=="skip");
-  convertBtn.disabled=!anyReady||converted;
-  downloadBtn.disabled=!converted||!items.some(i=>i.state==="done");
+  // pending = convertible for the current target but not yet converted
+  const pending=items.some(i=>i.sfnt&&i.state!=="skip"&&i.state!=="done");
+  const done=items.filter(i=>i.state==="done"&&i.out);
+  convertBtn.disabled=!pending;
+  downloadBtn.hidden=!done.length;
+  downloadBtn.textContent=done.length>1?`Download all (${done.length})`:"Download";
 }
-function remove(i){items.splice(i,1);converted=false;refreshTargets();render();updateButtons();showStatus("");}
+function remove(i){
+  // convert state is derived from the items themselves, so removing a row
+  // never re-arms convert on its own
+  items.splice(i,1);
+  refreshTargets();render();updateButtons();showStatus("");
+}
 
 async function addFiles(list){
   for(const file of list){
@@ -241,11 +254,11 @@ async function addFiles(list){
     catch(e){ console.error(e); it.state="baderr"; }
     items.push(it);
   }
-  converted=false;refreshTargets();render();updateButtons();showStatus("");
+  refreshTargets();render();updateButtons();showStatus("");
 }
 
 async function convertAll(){
-  converted=false;convertBtn.disabled=true;showStatus("Converting…");
+  convertBtn.disabled=true;showStatus("Converting…");
   let ok=0,fail=0;
   for(const it of items){
     if(!it.sfnt){fail++;continue;}
@@ -257,7 +270,7 @@ async function convertAll(){
       it.out=await fromSfnt(it.sfnt,target);it.outFmt=target;it.state="done";ok++;
     }catch(e){console.error(e);it.state="fail";fail++;}
   }
-  converted=true;render();updateButtons();
+  render();updateButtons();
   showStatus(fail? `${ok} converted, ${fail} skipped/failed` : `${ok} font${ok>1?"s":""} converted — ready to download`, fail&&!ok);
 }
 
@@ -267,6 +280,13 @@ function saveBlob(bytes,name,mime){
   setTimeout(()=>URL.revokeObjectURL(u),1500);
 }
 const mimeOf=f=>f==="woff2"?"font/woff2":f==="woff"?"font/woff":f==="otf"?"font/otf":"font/ttf";
+
+function downloadOne(i){
+  const it=items[i];
+  if(!it||it.state!=="done"||!it.out)return;
+  saveBlob(it.out,`${it.base}.${it.outFmt}`,mimeOf(it.outFmt));
+  showStatus(`Downloaded ${it.base}.${it.outFmt}`);
+}
 
 async function downloadAll(){
   const done=items.filter(i=>i.state==="done"&&i.out);
@@ -315,7 +335,7 @@ function makeZip(files){
 }
 
 function reset(){
-  items=[];converted=false;fileInput.value="";
+  items=[];fileInput.value="";
   refreshTargets();render();updateButtons();showStatus("");
 }
 
