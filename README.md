@@ -30,17 +30,18 @@ TTF↔OTF isn't offered — it would mean rebuilding the glyph outlines (glyf �
 
 ## How it's built
 
-Vanilla HTML/CSS/JS, no framework or build step. The app is a single `index.html` with its logic inline; `base.css` holds the styles.
+Vanilla HTML/CSS/JS, no framework or build step.
 
 ```
-site/      the deployed app — index.html, base.css, icons, manifest,
-           and Cloudflare's _headers
-site/lib/  vendored WOFF2 WebAssembly + its license
+index.html   the whole app — markup, CSS and logic inline
+favicon.svg  the icon
+lib/         vendored WOFF2 WebAssembly — 567KB, kept separate
+             so it caches instead of re-downloading with the page
 ```
 
-`wrangler.jsonc` points Cloudflare's asset root at `site/`.
+`wrangler.jsonc` serves the repo root and falls back to `index.html` for any unmatched path, so a wrong URL lands on the app rather than a 404.
 
 ## Credits
 
-- WOFF2 WASM: [google/woff2](https://github.com/google/woff2) via bunny-woff2 (MIT) — see `site/lib/LICENSE-bunny-woff2.txt`
-- Made with ♥ by Alex Ghit — alex@hey5.studio
+- WOFF2 WebAssembly — see `LICENSE-bunny-woff2.txt` for the license it ships under
+- Made with ♥ by Alex Ghit — <alex@hey5.studio>
